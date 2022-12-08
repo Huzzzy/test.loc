@@ -1,8 +1,18 @@
 {
-  "user1": {
+  "users":
+  [
+  {
     "login": "zee",
     "passwordHash": "password",
     "email": "ilya.sushkevich@gmail.com",
     "name": "ilya"
+  },
+
+  {
+    "login": "kizaru",
+    "passwordHash": "password2",
+    "email": "oleg.nechiporenko@gmail.com",
+    "name": "oleg"
   }
+]
 }

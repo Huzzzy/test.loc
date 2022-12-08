@@ -1,0 +1,19 @@
+{
+  "name": "sushkevich/myproject",
+  "type": "project",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Ilya Sushkevich",
+      "email": "ilya.sushkevich@gmail.com"
+    }
+  ],
+  "autoload": {
+    "psr-4": {
+      "MyProject\\": "src/MyProject/"
+    }
+  },
+  "require": {
+    "erusev/parsedown": "^1.7"
+  }
+}

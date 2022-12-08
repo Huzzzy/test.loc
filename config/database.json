@@ -1,0 +1,8 @@
+{
+  "user1": {
+    "login": "zee",
+    "passwordHash": "password",
+    "email": "ilya.sushkevich@gmail.com",
+    "name": "ilya"
+  }
+}

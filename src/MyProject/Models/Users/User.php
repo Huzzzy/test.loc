@@ -4,20 +4,19 @@ namespace MyProject\Models\Users;
 
 use MyProject\Models\ActiveRecordEntity;
 use MyProject\Exceptions\InvalidArgumentException;
+use MyProject\Services\Db;
 
 class User extends ActiveRecordEntity
 {
     /** @var string */
-    protected $nickname;
+    protected $login;
 
     /** @var string */
     protected $email;
 
-    /** @var int */
-    protected $isConfirmed;
-
     /** @var string */
-    protected $role;
+    protected $name;
+
 
     /** @var string */
     protected $passwordHash;
@@ -25,12 +24,14 @@ class User extends ActiveRecordEntity
     /** @var string */
     protected $authToken;
 
+
+
     /**
      * @return string
      */
-    public function getNickname(): string
+    public function getName(): string
     {
-        return $this->nickname;
+        return $this->name;
     }
 
     /**
@@ -46,10 +47,6 @@ class User extends ActiveRecordEntity
         return 'users';
     }
 
-    public function getIsConfirmed():bool
-    {
-        return $this->isConfirmed;
-    }
 
     /**
      * @return string
@@ -59,26 +56,25 @@ class User extends ActiveRecordEntity
         return $this->authToken;
     }
 
-    /**
-     * @return string
-     */
-    public function getRole(): string
-    {
-        return $this->role;
-    }
 
     public static function signUp(array $userData)
     {
         //NICKNAME
-        if (empty($userData['nickname'])) {
-            throw new InvalidArgumentException('Не передан nickname');
+        if (empty($userData['login'])) {
+            throw new InvalidArgumentException('Не передан логин');
         }
-        if (!preg_match('/^[a-zA-Z0-9]+$/', $userData['nickname'])) {
-            throw new InvalidArgumentException('Nickname может состоять только из символов латинского алфавита и цифр');
+        if (!preg_match('/^[a-zA-Z0-9]+$/', $userData['login'])) {
+            throw new InvalidArgumentException('логин может состоять только из символов латинского алфавита и цифр');
         }
-        if (static::findOneByColumn('nickname', $userData['nickname']) !== null) {
-            throw new InvalidArgumentException('Пользователь с таким nickname уже существует');
+
+
+        //Name
+        if (empty($userData['name'])) {
+            throw new InvalidArgumentException('Не передано имя');
         }
+//        if (static::findOneByColumn('login', $userData['login']) !== null) {
+//            throw new InvalidArgumentException('Пользователь с таким nickname уже существует');
+//        }
     
         
         //EMAIL
@@ -88,63 +84,58 @@ class User extends ActiveRecordEntity
         if (!filter_var($userData['email'], FILTER_VALIDATE_EMAIL)) {
             throw new InvalidArgumentException('Email некорректен');
         }
-        if (static::findOneByColumn('email', $userData['email']) !== null) {
-            throw new InvalidArgumentException('Пользователь с таким email уже существует');
-        }
+//        if (static::findOneByColumn('email', $userData['email']) !== null) {
+//            throw new InvalidArgumentException('Пользователь с таким email уже существует');
+//        }
         
         //PASSWORD
         if (empty($userData['password'])) {
-            throw new InvalidArgumentException('Не передан password');
+            throw new InvalidArgumentException('Не передан пароль');
         }
         if (mb_strlen($userData['password']) < 8) {
             throw new InvalidArgumentException('Пароль должен быть не менее 8 символов');
+        }
+        if (($userData['password']) !== ($userData['confirm_password'])) {
+            throw new InvalidArgumentException('Пароли не совпадают');
         }
 
 
         //После всех проверок создаем пользователя
         $user = new User();
-        $user->nickname = $userData['nickname'];
+        $user->id = uniqid();
+        $user->login = $userData['login'];
         $user->email = $userData['email'];
         $user->passwordHash = password_hash($userData['password'], PASSWORD_DEFAULT);
-        $user->isConfirmed = false;
-        $user->role = 'user';
+        $user->name = $userData['name'];
         $user->authToken = sha1(random_bytes(100)) . sha1(random_bytes(100));
         $user->save();
 
         return $user;
     }
 
-    public function activate(): void
-    {
-        $this->isConfirmed = true;
-        $this->save();
-    }
-
     public static function login(array $loginData): User
     {
-        if (empty($loginData['email'])) {
-            throw new InvalidArgumentException('Не передан email');
+        //$user = User::getById( );
+
+        if (empty($loginData['login'])) {
+            throw new InvalidArgumentException('Логин');
         }
 
         if (empty($loginData['password'])) {
-            throw new InvalidArgumentException('Не передан password');
+            throw new InvalidArgumentException('Не передан пароль');
         }
 
-        $user = User::findOneByColumn('email', $loginData['email']);
-        if ($user === null) {
-            throw new InvalidArgumentException('Нет пользователя с таким email');
-        }
+//        $user = User::findOneByColumn('email', $loginData['email']);
+//        if ($user === null) {
+//            throw new InvalidArgumentException('Нет пользователя с таким email');
+//        }
 
         if (!password_verify($loginData['password'], $user->getPasswordHash())) {
             throw new InvalidArgumentException('Неправильный пароль');
         }
 
-        if (!$user->isConfirmed) {
-            throw new InvalidArgumentException('Пользователь не подтверждён');
-        }
-
         $user->refreshAuthToken();
-        $user->save();
+        $user->refresh();
 
         return $user;
     }

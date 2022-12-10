@@ -1,3 +1,12 @@
 [
 
+
+    {
+        "login": "user2",
+        "email": "ilya.sushkevich@gmail.com",
+        "name": "ilya",
+        "passwordHash": "$2y$10$mBQqOH7yWb9v7dOtuWIeNOjC2oghkjVo04q1QiMgO1PJtgeWFI2dm",
+        "authToken": "5d7fc33dcce6f651943a52c451254f41eeb9dea0cbdace7ce24a8455e925703803c3269e8da7a741",
+        "id": "6394d8c85dcff"
+    }
 ]

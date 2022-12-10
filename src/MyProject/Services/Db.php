@@ -3,41 +3,33 @@
 namespace MyProject\Services;
 
 use MyProject\Exceptions\DbException;
+use Jajo\JSONDB;
 
 class Db
 {
-    /** @var \PDO */
-    private $pdo;
+    private $json_db;
 
     private static $instance;
 
     private function __construct()
     {
-        $dbOptions = (require __DIR__ . '/../../settings.php')['db'];
-
-        try {
-            $this->pdo = new \PDO(
-                'mysql:host=' . $dbOptions['host'] . ';dbname=' . $dbOptions['dbname'],
-                $dbOptions['user'],
-                $dbOptions['password']
-            );
-            $this->pdo->exec('SET NAMES UTF8');
-        } catch (\PDOException $e) {
-            throw new DbException('Ошибка при подключении к базе данных: ' . $e->getMessage());
-        }
+        $this->json_db = new JSONDB(__DIR__ . '/../../../config/');
     }
 
-    public function query(string $sql, array $params = [], string $className = 'stdClass'): ?array
+    public function insertToDb($data)
     {
-        $sth = $this->pdo->prepare($sql);
-        $result = $sth->execute($params);
-
-        if (false === $result) {
-            return null;
-        }
-
-        return $sth->fetchAll(\PDO::FETCH_CLASS, $className);
+        $this->json_db->insert('users.json', $data);
     }
+
+    public function getUserId(int $id)
+    {
+        return $this->json_db->select('id')
+            ->from('users.json')
+            ->where(['id' => $id])
+            ->get();
+    }
+
+
 
     public static function getInstance(): self
     {
@@ -46,10 +38,5 @@ class Db
         }
 
         return self::$instance;
-    }
-
-    public function getLastInsertId(): int
-    {
-        return (int)$this->pdo->lastInsertId();
     }
 }

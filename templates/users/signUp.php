@@ -9,6 +9,8 @@
             <br><br>
             <label>Пароль <input type="password" name="password" value="<?= $_POST['password'] ?? '' ?>"></label>
             <br><br>
+            <label>Повторите пароль <input type="password" name="confirm_password" value="<?= $_POST['confirm_password'] ?? '' ?>"></label>
+            <br><br>
             <label>Email <input type="text" name="email" value="<?= $_POST['email'] ?? '' ?>"></label>
             <br><br>
             <label>Имя <input type="text" name="name" value="<?= $_POST['name'] ?? '' ?>"></label>

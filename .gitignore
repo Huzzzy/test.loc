@@ -1,2 +1,4 @@
 /vendor/
 /config/users.json
+/.vscode/
+/.idea/

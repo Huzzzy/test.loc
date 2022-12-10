@@ -2,16 +2,13 @@
 
 namespace MyProject\Controllers;
 
-use MyProject\Models\Users\UserActivationService;
 use MyProject\Models\Users\UsersAuthService;
-use MyProject\Services\EmailSender;
 use MyProject\Models\Users\User;
 use MyProject\Exceptions\InvalidArgumentException;
-use MyProject\Exceptions\ActivateException;
 
 class UsersController extends AbstractController
 {
-    public function signUp()
+    public function signUp():void
     {
         if (!empty($_POST)) {
             try {
@@ -20,56 +17,14 @@ class UsersController extends AbstractController
                 $this->view->renderHtml('users/signUp.php', ['error' => $e->getMessage()]);
                 return;
             }
-
-            
-        if ($user instanceof User) {
-            $code = UserActivationService::createActivationCode($user);
-
-            EmailSender::send($user, 'Активация', 'userActivation.php', [
-                'userId' => $user->getId(),
-                'code' => $code
-            ]);
-
-            $this->view->renderHtml('mail/userActivation.php',
-                [
-                    'user' => $user->getId(),
-                    'code' => $code = UserActivationService::createActivationCode($user)
-                ]);
-            return;
         }
+
+        if ($user instanceof User) {
+            $this->view->renderHtml('main/main.php', []);
+            return;
         }
 
         $this->view->renderHtml('users/signUp.php');
-    }
-
-    public function activate(int $userId, string $activationCode):void
-    {
-        try {
-            $user = User::getById($userId);
-
-            if ($user === null) {
-                throw new ActivateException('Нет такого пользователя!');
-            }
-
-            $isCodeValid = UserActivationService::checkActivationCode($user, $activationCode);
-
-
-
-            if ($user->getIsConfirmed()) {
-                throw new ActivateException('Пользователь уже активирован!');
-            }
-
-            if ($isCodeValid) {
-                $user->activate();
-                UserActivationService::deleteActivationCode($userId);
-                echo 'OK!';
-            } else {
-                throw new ActivateException('Код неправильный!');
-            }
-        } catch(ActivateException $e) {
-            $this->view->renderHtml('errors/noId.php', ['error' => $e->getMessage()]);
-            return;
-        }
     }
 
     public function login()
